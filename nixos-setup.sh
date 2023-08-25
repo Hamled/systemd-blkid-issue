@@ -58,6 +58,16 @@ sudo sed -i -e '/^}/d' /mnt/etc/nixos/configuration.nix
 sudo tee -a /mnt/etc/nixos/configuration.nix >/dev/null <<-EOF
 users.users.root.password = "password";
 services.sshd.enable = true;
+
+boot.initrd.extraUdevRulesCommands = let
+  ignore-diskseq-rule = pkgs.writeTextDir
+    "lib/udev/rules.d/01-md-ignore-diskseq.rules"
+    ''
+      KERNEL=="md*", ENV{ID_IGNORE_DISKSEQ}="true"
+    '';
+in ''
+  cp -v \${ignore-diskseq-rule}/lib/udev/rules.d/*.rules \$out/
+'';
 }
 EOF
 
