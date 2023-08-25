@@ -36,8 +36,15 @@ sudo mdadm \
     --raid-devices=2 \
     /dev/vd[ab]2
 
+# Create encrypted root partition
+echo -n "password" | sudo cryptsetup luksFormat /dev/md0 -
+echo -n "password" | sudo cryptsetup open \
+    --key-file - \
+    /dev/md0 \
+    root
+
 # Format root partition
-sudo mkfs.ext4 -L "root" /dev/md0
+sudo mkfs.ext4 -L "root" /dev/mapper/root
 sudo udevadm settle
 
 # Mount and install OS
